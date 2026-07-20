@@ -841,8 +841,10 @@ void RDFMP2::form_Aia() {
     IntegralFactory factory(ribasis_, BasisSet::zero_ao_basis_set(), basisset_, basisset_);
     std::vector<std::shared_ptr<TwoBodyAOInt> > eri;
     std::vector<const double*> buffer;
-    for (int thread = 0; thread < nthread; thread++) {
-        eri.push_back(std::shared_ptr<TwoBodyAOInt>(factory.eri()));
+    eri.push_back(std::shared_ptr<TwoBodyAOInt>(factory.eri()));
+    buffer.push_back(eri[0]->buffer());
+    for (int thread = 1; thread < nthread; thread++) {
+        eri.push_back(std::shared_ptr<TwoBodyAOInt>(eri.front()->clone()));
         buffer.push_back(eri[thread]->buffer());
     }
 
@@ -1510,8 +1512,9 @@ void RDFMP2::form_Amn_x_terms() {
 
     IntegralFactory rifactory(ribasis_, BasisSet::zero_ao_basis_set(), basisset_, basisset_);
     std::vector<std::shared_ptr<TwoBodyAOInt> > eri;
-    for (int t = 0; t < num_threads; t++) {
-        eri.push_back(std::shared_ptr<TwoBodyAOInt>(rifactory.eri(1)));
+    eri.push_back(std::shared_ptr<TwoBodyAOInt>(rifactory.eri(1)));
+    for (int t = 1; t < num_threads; t++) {
+        eri.push_back(std::shared_ptr<TwoBodyAOInt>(eri.front()->clone()));
     }
 
     // => ERI Sieve <= //
@@ -1712,8 +1715,9 @@ void RDFMP2::form_L() {
 
     IntegralFactory rifactory(ribasis_, BasisSet::zero_ao_basis_set(), basisset_, basisset_);
     std::vector<std::shared_ptr<TwoBodyAOInt> > eri;
-    for (int t = 0; t < num_threads; t++) {
-        eri.push_back(std::shared_ptr<TwoBodyAOInt>(rifactory.eri()));
+    eri.push_back(std::shared_ptr<TwoBodyAOInt>(rifactory.eri()));
+    for (int t = 1; t < num_threads; t++) {
+        eri.push_back(std::shared_ptr<TwoBodyAOInt>(eri.front()->clone()));
     }
 
     // => ERI Sieve <= //
@@ -2658,8 +2662,10 @@ void UDFMP2::form_Aia() {
     IntegralFactory factory(ribasis_, BasisSet::zero_ao_basis_set(), basisset_, basisset_);
     std::vector<std::shared_ptr<TwoBodyAOInt> > eri;
     std::vector<const double*> buffer;
-    for (int thread = 0; thread < nthread; thread++) {
-        eri.push_back(std::shared_ptr<TwoBodyAOInt>(factory.eri()));
+    eri.push_back(std::shared_ptr<TwoBodyAOInt>(factory.eri()));
+    buffer.push_back(eri[0]->buffer());
+    for (int thread = 1; thread < nthread; thread++) {
+        eri.push_back(std::shared_ptr<TwoBodyAOInt>(eri.front()->clone()));
         buffer.push_back(eri[thread]->buffer());
     }
 
