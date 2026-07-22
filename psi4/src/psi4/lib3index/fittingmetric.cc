@@ -114,15 +114,16 @@ void FittingMetric::form_fitting_metric() {
 
     // == (A|B) Block == //
     IntegralFactory rifactory_J(aux_, zero, aux_, zero);
-    std::vector<const double*> Jbuffer(nthread);  
+    std::vector<const double*> Jbuffer(nthread);
     std::vector<std::shared_ptr<TwoBodyAOInt>> Jint(nthread);
-    for (int Q = 0; Q < nthread; Q++) {
-        if (omega_ > 0.0) {
-            Jint[Q] = std::shared_ptr<TwoBodyAOInt>(rifactory_J.erf_eri(omega_));
-        } else {
-            Jint[Q] = std::shared_ptr<TwoBodyAOInt>(rifactory_J.eri());
-        }
-        if (!Jint[Q]->sieve_initialized()) Jint[Q]->initialize_sieve();
+    if (omega_ > 0.0) {
+        Jint[0] = std::shared_ptr<TwoBodyAOInt>(rifactory_J.erf_eri(omega_));
+    } else {
+        Jint[0] = std::shared_ptr<TwoBodyAOInt>(rifactory_J.eri());
+    }
+    if (!Jint[0]->sieve_initialized()) Jint[0]->initialize_sieve();
+    for (int Q = 1; Q < nthread; Q++) {
+        Jint[Q] = std::shared_ptr<TwoBodyAOInt>(Jint[0]->clone());
     }
 
 #pragma omp parallel for schedule(dynamic) num_threads(nthread)
